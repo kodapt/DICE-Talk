@@ -7,10 +7,11 @@ build:
   python_version: "3.11"
 
   python_packages:
+    - "av==11.0.0"
+    - "torch==2.2.2"
+    - "torchvision==0.17.2"
+    - "torchaudio==2.2.2"
     - "diffusers==0.29.0"
-    - "torch==2.2.1"
-    - "torchaudio==2.2.1"
-    - "torchvision==0.17.1"
     - "transformers==4.43.2"
     - "imageio==2.31.1"
     - "imageio-ffmpeg==0.5.1"
@@ -20,8 +21,13 @@ build:
     - "einops==0.7.0"
     - "pydub==0.25.1"
     - "huggingface_hub>=0.20.0"
-    - "numpy<2"
-    - "accelerate"
+    - "numpy==1.26.4"
+    - "pydantic==2.10.6"
+    - "gradio==4.44.1"
+    - "opencv-python==4.8.1.78"
+    - "sk-video==1.1.10"
+    - "pillow"
+    - "accelerate==0.28.0"
 
   run:
     - curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && chmod +x /usr/local/bin/pget
