@@ -60,8 +60,7 @@ def setup_checkpoints():
         "DICE-Talk/audio_linear.pth",
         "DICE-Talk/emo_model.pth",
         "yoloface_v5m.pt",
-        "RIFE/flownet.pkl",
-        "RIFE/IFNet_HDv3.pkl"
+        "RIFE/flownet.pkl"
     ]
     hf_local_paths = {}
     for hf_file in hf_files:
