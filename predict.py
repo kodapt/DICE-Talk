@@ -61,7 +61,7 @@ def setup_checkpoints():
         "DICE-Talk/emo_model.pth",
         "yoloface_v5m.pt",
         "RIFE/flownet.pkl",
-        "RIFE/IFNet_HDv3.py"
+        "RIFE/IFNet_HDv3.pkl"
     ]
     hf_local_paths = {}
     for hf_file in hf_files:
