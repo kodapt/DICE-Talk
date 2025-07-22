@@ -8,6 +8,8 @@ from dice_talk import DICE_Talk
 import torch
 import time
 from huggingface_hub import hf_hub_download
+import shutil
+import glob
 
 MODEL_CACHE = "checkpoints"
 os.environ["HF_HOME"] = MODEL_CACHE
@@ -53,7 +55,7 @@ def setup_checkpoints():
         if not os.path.exists(dest_path.replace(".tar", "")):
             download_weights(url, dest_path)
 
-    # Download custom weights from Hugging Face
+    # Download custom weights from Hugging Face, then copy them to the expected path
     hf_files = [
         "DICE-Talk/unet.pth",
         "DICE-Talk/pose_guider.pth",
@@ -64,8 +66,26 @@ def setup_checkpoints():
     ]
     hf_local_paths = {}
     for hf_file in hf_files:
+        print(f"[HF] Downloading {hf_file} from {HF_REPO} ...")
         local_path = hf_hub_download(HF_REPO, hf_file, cache_dir=MODEL_CACHE)
         hf_local_paths[hf_file] = local_path
+
+        # Copy to expected flat path
+        expected_path = os.path.join(MODEL_CACHE, hf_file)
+        expected_dir = os.path.dirname(expected_path)
+        if not os.path.exists(expected_dir):
+            os.makedirs(expected_dir, exist_ok=True)
+        if local_path != expected_path:
+            print(f"[HF] Copying {local_path} -> {expected_path}")
+            shutil.copy(local_path, expected_path)
+        else:
+            print(f"[HF] {hf_file} already at expected location: {expected_path}")
+
+    # Print all files under checkpoints (for debug)
+    print("\n[LOG] All files under checkpoints/:")
+    for f in glob.glob(MODEL_CACHE + '/**/*', recursive=True):
+        print("  -", f)
+    print("\n[LOG] setup_checkpoints() complete.\n")
     return hf_local_paths
 
 class Predictor(BasePredictor):
@@ -96,25 +116,25 @@ class Predictor(BasePredictor):
     ) -> Path:
         print("Starting prediction...")
         start_time = time.time()
-        
+
         tmp_dir = "/src/tmp_path"
         res_dir = "/src/res_path"
         os.makedirs(tmp_dir, exist_ok=True)
         os.makedirs(res_dir, exist_ok=True)
-        
+
         tmp_image_path = os.path.join(tmp_dir, "input_image.png")
         tmp_audio_path = os.path.join(tmp_dir, "input_audio.wav")
         res_video_path = os.path.join(res_dir, "output.mp4")
-        
+
         img_in = Image.open(str(image))
         img_in.save(tmp_image_path, "PNG")
         audio_segment = AudioSegment.from_file(str(audio))
         audio_segment.export(tmp_audio_path, format="wav")
-        
+
         expand_ratio = 0.5
         face_info = self.pipe.preprocess(tmp_image_path, expand_ratio=expand_ratio)
         processed_image_path = tmp_image_path
-        
+
         if face_info and face_info.get('face_num', 0) > 0 and 'crop_bbox' in face_info:
             crop_image_path = os.path.join(tmp_dir, "face_crop.png")
             self.pipe.crop_image(tmp_image_path, crop_image_path, face_info['crop_bbox'])
@@ -122,7 +142,7 @@ class Predictor(BasePredictor):
             print("Using cropped face image for processing")
         else:
             print("Using original image for processing (no face detected)")
-        
+
         print("Generating talking face animation...")
         self.pipe.process(
             processed_image_path,
@@ -137,8 +157,8 @@ class Predictor(BasePredictor):
             seed=seed,
         )
         print(f"Video generation complete")
-        
+
         end_time = time.time()
         print(f"Total prediction time: {end_time - start_time:.2f} seconds")
-        
+
         return Path(res_video_path)
