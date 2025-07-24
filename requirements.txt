@@ -1,6 +1,17 @@
-accelerate==0.28.0
-av==11.0.0
+# === Core Dependencies ===
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
+
+# === Essential libraries ===
+accelerate==0.30.1
 diffusers==0.29.0
+transformers==4.43.2
+peft==0.10.0
+huggingface_hub==0.19.4
+
+# === Project-specific ===
+av==11.0.0
 einops==0.7.0
 pydantic==2.10.6
 gradio==4.44.1
@@ -12,4 +23,3 @@ omegaconf==2.3.0
 opencv-python==4.8.1.78
 sk-video==1.1.10
 tqdm==4.65.2
-transformers==4.43.2
